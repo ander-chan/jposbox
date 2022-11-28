@@ -31,8 +31,10 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.sql.ResultSet;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.print.PrintService;
@@ -57,18 +59,17 @@ public class PosBoxFrame extends javax.swing.JFrame {
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
+    private  Enumeration<gnu.io.CommPortIdentifier> portIdentifiers;
     /**
      * Creates new form PosBoxFrame
      */
     public PosBoxFrame() {
         initComponents();
         //serial
-        WeighingScaleEventListener ws = new WeighingScaleEventListener("/home/ander/virtual-tty");
-        try {
-            ws.initializePort();
-        } catch (Exception ex) {
-            Logger.getLogger(PosBoxFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+       portIdentifiers = gnu.io.CommPortIdentifier.getPortIdentifiers();
+        for (gnu.io.CommPortIdentifier portId : Collections.list(portIdentifiers))
+            comboPort.addItem(portId.getName());
+       
 listPorts();
         
         try {
@@ -365,6 +366,11 @@ listPorts();
         labelWeight.setText("...");
 
         jToggleButton1.setText("Connect");
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -400,7 +406,7 @@ listPorts();
                 .addContainerGap(104, Short.MAX_VALUE))
         );
 
-        jTabbedPane1.addTab("tab6", jPanel6);
+        jTabbedPane1.addTab("Weight Scale", jPanel6);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -447,6 +453,17 @@ listPorts();
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
          SaveAll();
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        Object selectedItem = comboPort.getSelectedItem();
+        
+                WeighingScaleEventListener ws = new WeighingScaleEventListener(selectedItem.toString());
+        try {
+            ws.initializePort();
+        } catch (Exception ex) {
+            Logger.getLogger(PosBoxFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     /**
      * @param args the command line arguments
